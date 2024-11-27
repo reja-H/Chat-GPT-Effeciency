@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT Evaluation Project</title>
+  <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <h1>ChatGPT Efficiency Evaluation</h1>
+    <p>Assessing AI accuracy and efficiency across multiple domains</p>
+
+    <!-- Navigation -->
+    <nav class="topnav">
+      <a href="#introduction">Introduction</a>
+      <a href="#batul">About Batul</a>
+      <a href="#reja">About Reja</a>
+      <a href="#research-approach">Research Approach</a>
+      <a href="#dataset-overview">Dataset Overview</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Introduction Section -->
+    <section id="introduction" class="section-box">
+      <h2>Introduction</h2>
+      <p>
+        This project is an in-depth evaluation of ChatGPT’s efficiency across multiple domains. 
+        Our platform showcases key findings, data visualizations, and complex insights into ChatGPT’s performance.
+      </p>
+    </section>
+
+    <!-- About Batul Section -->
+    <section id="batul" class="section-box">
+      <h2>About Batul</h2>
+      <p>
+        Batul Ismail is a Cyber Security Intern at the Government of Ontario and a fourth-year IT student. 
+        She specializes in risk and compliance, with technical expertise in Python, Java, cybersecurity, and project management.
+      </p>
+      <p>
+        Connect with Batul: 
+        <a href="https://www.linkedin.com/in/batul-ismail/">LinkedIn</a>
+      </p>
+    </section>
+
+    <!-- About Reja Section -->
+    <section id="reja" class="section-box">
+      <h2>About Reja</h2>
+      <p>
+        Reja Hussain is a Product Design Intern at Scotiabank and a student at York University. 
+        Reja is experienced in Figma, UI/UX design, and design thinking, shaping user experiences at a professional level.
+      </p>
+    </section>
+
+    <!-- Research Approach Section -->
+    <section id="research-approach" class="section-box">
+      <h2>Research Approach</h2>
+      <p>
+        The project involved developing a website using HTML and CSS for design and Express.js for dynamic web pages. 
+        MongoDB served as the database for storing correct answers, while Node.js powered the backend. 
+        ChatGPT API was integrated to evaluate efficiency, and the website was hosted on GitHub Pages for accessibility.
+      </p>
+    </section>
+
+    <!-- Dataset Overview and Results Section -->
+    <section id="dataset-overview" class="section-box">
+      <h2>Dataset Overview</h2>
+      <p>
+        The dataset consists of 150 questions evenly distributed across three categories: History, Social Science, and Computer Security, with 50 questions in each category. Each question is presented in a multiple-choice format, designed to evaluate the accuracy and efficiency of ChatGPT's responses. The MongoDB database stores only the correct answers for each question, serving as a benchmark to compare ChatGPT's generated answers during evaluations. This setup ensures an objective and streamlined process for assessing the model's performance.
+      </p>
+
+      <h2>Results</h2>
+      <div class="container">
+        <label for="collection">Choose a Collection:</label>
+        <select id="collection">
+          <option value="History">History</option>
+          <option value="Social_Science">Social Science</option>
+          <option value="Computer_Security">Computer Security</option>
+        </select>
+
+        <button id="getQuestionBtn">Get Random Question</button>
+        <button id="askChatGPTBtn">Ask ChatGPT</button>
+
+        <p id="questionText">Click "Get Random Question" to start.</p>
+        <div id="resultBox"></div>
+      </div>
+
+      <script>
+        // Get references to DOM elements
+        const getQuestionBtn = document.getElementById('getQuestionBtn');
+        const askChatGPTBtn = document.getElementById('askChatGPTBtn');
+        const questionText = document.getElementById('questionText');
+        const resultBox = document.getElementById('resultBox');
+        const collectionSelect = document.getElementById('collection');
+
+        let currentQuestion = null; // Track the current question
+
+        // Function to get a random question
+        async function getRandomQuestion() {
+          const collection = collectionSelect.value;
+          try {
+            const response = await fetch('/getRandomQuestion', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ collection })
+            });
+            const data = await response.json();
+            if (response.ok) {
+              currentQuestion = data.question; // Store the question
+              questionText.innerText = currentQuestion; // Display the question
+              resultBox.innerText = ''; // Clear previous result
+            } else {
+              questionText.innerText = 'Error retrieving question.';
+              currentQuestion = null;
+            }
+          } catch (error) {
+            console.error('Error fetching question:', error);
+            questionText.innerText = 'Error fetching question.';
+            currentQuestion = null;
+          }
+        }
+
+        // Function to ask ChatGPT
+        async function askChatGPT() {
+          if (!currentQuestion) {
+            alert('Please get a question first.');
+            return;
+          }
+
+          const collection = collectionSelect.value;
+          try {
+            const response = await fetch('/askChatGPT', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ question: currentQuestion, collection })
+            });
+            const data = await response.json();
+            if (response.ok) {
+              resultBox.innerHTML = `
+                <strong>ChatGPT's Answer:</strong> ${data.answer} <br>
+                <strong>Is the answer correct?</strong> ${data.isCorrect ? 'Yes' : 'No'}
+              `;
+            } else {
+              resultBox.innerText = data.error || 'Error fetching answer.';
+            }
+          } catch (error) {
+            console.error('Error asking ChatGPT:', error);
+            resultBox.innerText = 'Error asking ChatGPT.';
+          }
+        }
+
+        // Event Listeners
+        getQuestionBtn.addEventListener('click', getRandomQuestion);
+        askChatGPTBtn.addEventListener('click', askChatGPT);
+      </script>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2024 ChatGPT Evaluation Project. All rights reserved.</p>
+  </footer>
+</body>
+</html>
